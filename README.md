@@ -1,165 +1,80 @@
-# Alpha
+# Alpha: Wi-Fi DDoS & Security Research Tool
 
-Alpha is an educational wireless security research tool written in Python.  
-It demonstrates how wireless interfaces are prepared, monitored, and analyzed
-in **authorized laboratory environments only**.
 
----
+**Alpha** is an educational wireless security research tool written in Python. It demonstrates how wireless interfaces are prepared, monitored, and analyzed in authorized laboratory environments. Specifically, it showcases Wi-Fi Denial of Service (DDoS) attacks via the 802.11 deauthentication mechanism.
 
-## ⚠️ Legal & Ethical Notice
-
-This project is intended **strictly for educational and defensive security research**.
-
-- Use this tool **only** on networks you own  
-- Or networks for which you have **explicit written permission**
-
-Unauthorized use against third-party or public networks is illegal and unethical.  
-The author assumes **no responsibility** for misuse.
+> [!CAUTION]
+> **LEGAL & ETHICAL NOTICE**
+> This project is intended strictly for educational and defensive security research. Use this tool only on networks you own or networks for which you have explicit written permission. Unauthorized use against third-party or public networks is illegal and unethical. The author assumes no responsibility for misuse.
 
 ---
 
-## Requirements
+## 🛠️ Requirements
 
-- Linux-based operating system (Kali Linux recommended)
-- Python 3
-- Monitor-mode capable Wi-Fi adapter
-- `aircrack-ng` suite installed
-- Administrator (sudo) privileges
-
----
-
-## Usage (Authorized Lab Environment Only)
-
-⚠️ Use this tool **only** on networks you own or have explicit written permission to test.
+* **Operating System**: Linux-based (Kali Linux highly recommended).
+* **Language**: Python 3.
+* **Hardware**: Monitor-mode capable Wi-Fi adapter.
+* **Dependencies**: `aircrack-ng` suite installed.
+* **Privileges**: Administrator (sudo) privileges.
 
 ---
+
+## 🚀 Usage (Authorized Lab Environment Only)
+
+⚠️ **Warning:** Use this tool **only** on networks you own or have explicit written permission to test.
 
 ### 1. Enable Monitor Mode
-
 Put the wireless adapter into monitor mode:
-
 ```bash
-airmon-ng start wlan0
-This command enables monitor mode and usually creates a monitor interface such as wlan0mon.
+sudo airmon-ng start wlan0
 
 2. Rename the Monitor Interface (Optional)
 Ensure the monitor interface uses a consistent name:
 
-ip link set <interface> name wlan0mon
-Replace <interface> with the monitor-mode interface created by your system.
+```bash
+sudo ip link set <interface> name wlan0mon
+Replace <interface> with the monitor-mode interface created by your system (e.g., wlan0mon).
 
 3. Start the Tool
 Run the script with administrator privileges:
 
+```bash
 sudo python3 wifidddos.py
-After starting the tool:
 
-Available wireless interfaces are displayed
 
-You are prompted to select an interface by number
-
-Nearby Wi-Fi access points are scanned and listed in real time
-
-Runtime Behavior
+⚙️ Runtime Behavior
 Interface Detection
-Wireless interfaces are detected automatically
+Wireless interfaces are detected automatically.
 
-A monitor-mode capable adapter is required
+A monitor-mode capable adapter is required.
 
-Conflicting network services may be temporarily disabled
+Conflicting network services may be temporarily disabled to ensure stability.
 
-Passive Network Scanning
-Wi-Fi access points are detected passively
+Passive Network Scanning & Wi-Fi DDoS Prep
+Wi-Fi access points are detected passively.
 
-Network details such as BSSID, channel, and ESSID are displayed
+The Wi-Fi list may change order during scanning as signal strengths update. This behavior is normal.
 
-No user input is required during the scanning phase
+Control Flow (Ctrl + C)
+First Ctrl + C: Stops live scanning and freezes the current Wi-Fi list. This prevents shuffling and allows you to select a target.
 
-Wi-Fi List Shuffle Behavior
-While scanning:
+Action: Enter the number of the Wi-Fi access point you want to target and press Enter.
 
-The Wi-Fi list may change order
+Second Ctrl + C: Stops the DDoS testing process, disables monitor mode, restores the wireless interface, and exits the program cleanly.
 
-Signal strength updates can cause reordering
 
-New access points may appear dynamically
+Issue,Cause,Fix
+No Wi-Fi Interfaces Shown,Missing sudo or adapter doesn't support monitor mode.,Run with sudo or check iwconfig.
+List Keeps Shuffling,Live scanning is active.,Press Ctrl + C once to freeze the list.
+Screen Appears Frozen,The tool is waiting for your target selection.,Type the ID number and press Enter.
+Ctrl + C Pressed Too Early,No networks had time to appear.,Restart the tool and wait 5-10 seconds before stopping the scan.
 
-Some networks may temporarily disappear and reappear
 
-✅ This behavior is normal
-❌ This is not an error
+📜 Technical Methodology
+This tool performs a Layer 2 Denial of Service by:
 
-Ctrl + C Behavior
-First Ctrl + C
-Stops live scanning
+Transitioning the NIC into Monitor Mode.
 
-Freezes the current Wi-Fi list
+Capturing 802.11 Beacon frames to identify target BSSIDs.
 
-Prevents further list shuffling
-
-Displays each access point with a number
-
-After this:
-
-Enter the number of the Wi-Fi access point you want to select
-
-Press Enter to continue
-
-Second Ctrl + C
-Stops the testing process
-
-Disables monitor mode
-
-Restores the wireless interface
-
-Exits the program cleanly
-
-✔️ This shutdown order is intentional and correct
-
-Error Handling & Common Issues
-No Wi-Fi Interfaces Shown
-Possible causes:
-
-Adapter does not support monitor mode
-
-Driver not loaded correctly
-
-Tool not run with sudo
-
-Fix:
-
-sudo python3 wifidddos.py
-Wi-Fi List Keeps Shuffling
-Explanation:
-
-Live scanning continuously refreshes results
-
-Action:
-
-Allow scanning to run for a few seconds
-
-Press Ctrl + C to freeze the list before selecting
-
-Ctrl + C Pressed Too Early
-Result:
-
-No networks displayed
-
-Selection not possible
-
-Fix:
-
-Restart the tool
-
-Wait until networks appear
-
-Press Ctrl + C again
-
-Screen Appears Frozen After Ctrl + C
-Explanation:
-
-The tool is waiting for user input
-
-Action:
-
-Enter the access point number and press Enter
+Utilizing aireplay-ng to broadcast Deauthentication Frames, which instructs client devices to disconnect from the Access Point.
